@@ -16,7 +16,7 @@ function httpAddLaunch(req, res) {
     const newLaunch = req.body
     if(!newLaunch.launchDate || !newLaunch.mission || !newLaunch.target || !newLaunch.rocket) {
         return res.status(400).json({
-            error: 'nissing required launch property',
+            error: 'missing required launch property',
         });
     }
 

@@ -1,10 +1,10 @@
 //using a map object for collection of launches
 const launches = new Map();
 
-let latestFlightNumber = 003
+let latestFlightNumber = 3
 
 const launch = {
-    flightNumber: 001,
+    flightNumber: 1,
     mission: 'Interstallar Mach IV',
     rocket: 'Space Mobile 229',
     launchDate: new Date('December 27, 2030'),
@@ -14,7 +14,7 @@ const launch = {
     status: 'upcoming',
 }
 const launchTwo = {
-    flightNumber: 002,
+    flightNumber: 2,
     mission: 'Roverton Spenning 11',
     rocket: 'Megas XLRH',
     launchDate: new Date('March 6, 2035'),
