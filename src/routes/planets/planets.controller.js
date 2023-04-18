@@ -1,4 +1,5 @@
-const planets = require('../../models/planets.model');
+//destructure to get only planets array
+const { planets } = require('../../models/planets.model');
 
 
 function getAllPlanets(req, res) {
