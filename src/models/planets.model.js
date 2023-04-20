@@ -2,6 +2,8 @@ const { parse } = require('csv-parse');
 const fs = require('fs'); //used to send stream to the parse function above
 const { resolve } = require('path');
 
+const planets = require('./planets.mongo')
+
 const habitablePlanets= [];
 //function to find habitable planets
 function isHabitablePlanet(planet) {
@@ -18,9 +20,12 @@ function loadPlanets() {
         comment: '#',
         columns: true,
     }))
-    .on('data', (data) => {
+    .on('data', async (data) => {
         if (isHabitablePlanet(data)){
             habitablePlanets.push(data);
+            //create mongodb document
+            //insert + update = upsert
+           savePlanet(data); 
         }
     })
     .on('error', (err) => {
@@ -44,11 +49,33 @@ function loadPlanets() {
 //parsed as a row or object.
 //readable stream providing data to a writable stream. parse is the writable stream.
 
+//create a getPlanets function for mongodB
+async function getPlanets() {
+    console.log('here now');
+    return await planets.find();  
+}
+
+//save planet to mongo
+async function savePlanet(data) {
+    try {
+        await planets.updateOne({
+            kepler_name: data.kepler_name,
+        }, {
+            kepler_name: data.kepler_name,
+        },
+        {
+            upsert: true,
+        })
+    } catch(err) {
+        console.error(`could not save planets ${err}`)
+    }
+}
 
 //export array of habitable planets
 module.exports = {
     loadPlanets,
     planets: habitablePlanets,
+    getPlanets,
 }
 
 //how do you make results update with objects and use it.
