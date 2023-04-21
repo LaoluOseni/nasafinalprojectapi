@@ -2,6 +2,8 @@
 const launchesMongo = require('./launches.mongo');
 const planets = require('./planets.mongo')
 
+const axios = require('axios');
+
 //using a map object for collection of launches. Early stages
 const launches = new Map();
 
@@ -33,7 +35,7 @@ const launchTwo = {
 launches.set(launchTwo.flightNumber, launchTwo);
 launches.set(launch.flightNumber, launch);
 
-//change this to get launches from mongodb 
+//change this to get launches from mongodb and use pagination(skip and limit);
 function allLaunches() {
     return Array.from(launches.values()).sort((a, b) => {
         return a.flightNumber - b.flightNumber;
@@ -125,6 +127,56 @@ async function abortLaunchById(launchId) {
     // return aborted;
 }
 
+//functions to interact with SpaceX API/ using axios for http tequests
+const SPACEX_URL = 'https://api.spacexdata.com/v5/launches/query';
+
+//query the api for a rocket object
+async function loadSpaceXData() {
+    console.log('downloading data');
+    const response = await axios.post(SPACEX_URL, {
+        query: {},
+        options: {
+            page: 1,
+            limit: 15,
+            populate: [
+                {
+                    path: 'rocket',
+                    select: {
+                        name: 1
+                    }
+                },
+                {
+                    path: 'payloads',
+                    select: {
+                        'customers': 1,
+                    }
+                }
+            ]
+        }
+    } )
+    const launchDocs = response.data.docs;
+    for (const launchDoc of launchDocs) {
+        const payloads = launchDoc['payloads'];
+        const customers = payloads.flatMap((payload) => {
+            return payload['customers'];
+        }) // turn all the customers into one list
+        const launch = {
+            flightNumber: launchDoc['flight_number'],
+            mission: launchDoc['name'],
+            rocket: launchDoc['rocket']['name'],
+            launchDate: launchDoc['date_local'],
+            upcoming: launchDoc['upcoming'],
+            success: launchDoc['success'],
+            customers,
+        };
+
+        console.log(`${launch.flightNumber} ${launch.mission}`);
+    }
+    
+};
+
+
+
 module.exports = {
     launches,
     allLaunches,
@@ -133,4 +185,5 @@ module.exports = {
     abortLaunchById,
     scheduleNewLaunch,
     existsLaunchWithId,
+    loadSpaceXData,
 }
