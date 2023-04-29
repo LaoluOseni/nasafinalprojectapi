@@ -1,6 +1,8 @@
 //file to handle all mongodb connections
 const mongoose = require('mongoose');
 
+require('dotenv').config();
+
 //MongoDb URL for server on local machine for development
 const MONGO_URL = process.env.MONGO_URL;
 

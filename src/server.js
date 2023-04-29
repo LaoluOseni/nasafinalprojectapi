@@ -6,7 +6,6 @@ const app = require('./app');
 
 //import mongo functions
 const { mongoConnect } = require('./services/mongo');
-
 const { loadPlanets } = require('./models/planets.model');
 const { loadSpaceXData } = require('./models/launches.model');
 
