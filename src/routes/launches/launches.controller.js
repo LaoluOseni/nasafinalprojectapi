@@ -7,13 +7,22 @@ const {
     existsLaunchWithId,
 } = require('../../models/launches.model');
 
+const { getPagination, } = require('../../services/query');
+
+async function getAllLaunches(req, res) {
+    const { skip, limit } = getPagination(req.query);
+    const launches = await allLaunches(skip, limit);
+    return res.status(200).json(launches);
+}
+
+/*
 function getAllLaunches(req, res) {
     //get launch value from launches map containing launches
     //console.log(launches.values());
     return res.status(200).json(allLaunches());
 
 }
-
+*/
 function httpAddLaunch(req, res) {
     const newLaunch = req.body
     if(!newLaunch.launchDate || !newLaunch.mission || !newLaunch.target || !newLaunch.rocket) {
@@ -38,7 +47,7 @@ async function httpAbortLaunch(req, res) {
     const launchId = +req.params.id;
 
     const existsLaunch = await existsLaunchWithId(launchId)
-    if(!existsLaunch(launchId)) {
+    if(!existsLaunch) {
         return res.status(404).json({
             error: 'Launch not found',
         })

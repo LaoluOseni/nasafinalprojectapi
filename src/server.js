@@ -7,7 +7,7 @@ const app = require('./app');
 //import mongo functions
 const { mongoConnect } = require('./services/mongo');
 const { loadPlanets } = require('./models/planets.model');
-const { loadSpaceXData } = require('./models/launches.model');
+const { loadLaunchData } = require('./models/launches.model');
 
 const PORT = process.env.PORT || 8000; // defaults to 8000 because frontend runs on 3000
 
@@ -21,7 +21,7 @@ const server = http.createServer(app);
 async function startServer() {
     await mongoConnect();
     await loadPlanets();
-    await loadSpaceXData();
+    await loadLaunchData();
 
     server.listen(PORT, () => {
         console.log(`Listening on port ${PORT}...`);

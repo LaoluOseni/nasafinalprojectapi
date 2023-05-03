@@ -39,7 +39,7 @@ function loadPlanets() {
             return planet['kepler_name']
         })) */
         //console.log(`${habitablePlanets.length} planets are habitable`)
-        const countPlanetsFound = (await getAllPlanets()).length;
+        const countPlanetsFound = (await getPlanets()).length;
         console.log(`${countPlanetsFound} habitable planets found`);
         console.log('done');
         resolve();

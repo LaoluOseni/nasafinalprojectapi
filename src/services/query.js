@@ -13,3 +13,7 @@ function getPagination(query) {
     }
     //provides an object that can be used to paginate with mongodb queries.
 }
+
+module.exports = {
+    getPagination,
+}

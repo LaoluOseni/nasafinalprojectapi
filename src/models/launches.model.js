@@ -15,6 +15,7 @@ const DEFAULT_FLIGHT_NUMBER = 100;
 //functions to interact with SpaceX API/ using axios for http tequests
 const SPACEX_URL = 'https://api.spacexdata.com/v5/launches/query';
 
+/*
 const oldLaunch = {
     flightNumber: 1,
     mission: 'Interstallar Mach IV',
@@ -38,6 +39,7 @@ const oldLaunchTwo = {
 launches.set(launchTwo.flightNumber, launchTwo);
 launches.set(launch.flightNumber, launch);
 
+*/
 //change this to get launches from mongodb and use pagination(skip and limit);
 
 //v2 of above
@@ -69,12 +71,15 @@ async function allLaunches2() {
         throw new Error('data download failed!');
     }
 
+  
+
     const launchDocs = response.data.docs;
     for(const launchDoc of launchDocs) {
-        const payloads = launch['payloads'];
+        const payloads = launchDoc['payloads'];
         const customers = payloads.flatMap((payload) => {
             return payload['customers'];
         });
+
 
         const launch = {
             flightNumber: launchDoc['flight_number'],
@@ -83,8 +88,12 @@ async function allLaunches2() {
             launchDate: launchDoc['date_local'],
             upcoming: launchDoc['upcoming'],
             success: launchDoc['success'],
+            target: 'Kepler-1410 b',
+
             customers,
         };
+
+  
 
         console.log(`${launch.flightNumber} ${launch.mission}`);
 
@@ -111,11 +120,12 @@ function doesLaunchExist(launchId) {
 
 
 
-    return aborted.modifiedCount === 1;
+   
     
     
     //you do not completely delete just mark as aborted. the data is still useful
     // const aborted = launches.get(launchId);
+    // return aborted.modifiedCount === 1;
     // aborted.upcoming = false;
     // aborted.success = false;
     // return aborted;
@@ -176,10 +186,10 @@ async function loadLaunchData() {
         rocket: 'Falcon 1',
         mission: 'FalconSat',
     });
-    if (firstlaunch) {
+    if (firstLaunch) {
         console.log('launch data previously loaded!');
     } else {
-        await populateLaunches();
+        await allLaunches2();
     }
 }
 
@@ -189,7 +199,7 @@ async function findLaunch(filter) {
 }
 
 async function existsLaunchWithId(launchId) {
-    return await launchesDatabase.findOne({
+    return await launchesMongo.findOne({
         flightNumber: launchId,
     })
 }
@@ -222,6 +232,7 @@ async function saveLaunch(launch) {
     const planet = await planets.findOne({
         kepler_name: launch.target,
     })
+    console.log(launch.target);
     
     if(!planet) {
         throw new Error('no matching planet found');
@@ -238,10 +249,12 @@ async function saveLaunch(launch) {
 async function scheduleNewLaunch(launch) {
     const newFlightNumber = await getLatestFlightNumber() + 1;
     const planet = await planets.findOne({
-        keplerName: launch.target,
+        kepler_name: launch.target,
     });
 
-    if (planet) {
+    console.log(launch.target);
+
+    if (!planet) {
         throw new Error ('No mathcing planet found');
     }
 
@@ -262,8 +275,11 @@ async function abortLaunchById(launchId) {
         flightNumber: launchId,
     }, {
         upcoming: false,
-        status: 'aborted',
+        //status: 'aborted',
     })
+
+    return true;
+    console.log(launchId)
 }
 
 module.exports = {
