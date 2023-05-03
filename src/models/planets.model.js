@@ -32,13 +32,15 @@ function loadPlanets() {
         console.log(err);
         reject(err);
     })
-    .on('end', () => {
+    .on('end', async () => {
         //console.log(results);
         //to map planet name
         /* console.log(habitablePlanets.map((planet) => {
             return planet['kepler_name']
         })) */
         //console.log(`${habitablePlanets.length} planets are habitable`)
+        const countPlanetsFound = (await getAllPlanets()).length;
+        console.log(`${countPlanetsFound} habitable planets found`);
         console.log('done');
         resolve();
     });    
@@ -52,8 +54,10 @@ function loadPlanets() {
 //create a getPlanets function for mongodB
 async function getPlanets() {
     console.log('here now');
-    return await planets.find();  
-}
+    return await planets.find({}, {
+        '_id': 0, '__v': 0,
+    });  
+};
 
 //save planet to mongo
 async function savePlanet(data) {
@@ -74,7 +78,7 @@ async function savePlanet(data) {
 //export array of habitable planets
 module.exports = {
     loadPlanets,
-    planets: habitablePlanets,
+    //planets: habitablePlanets,
     getPlanets,
 }
 
